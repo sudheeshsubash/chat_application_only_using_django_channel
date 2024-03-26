@@ -1,0 +1,80 @@
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat Room</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+
+        <script>
+            $(document).ready(function(){
+            
+            setInterval(function(){
+                $.ajax({
+                    type: 'GET',
+                    url : "/get/{{room}}",
+                    success: function(response){
+                        $("#display").empty();
+                        for (var key in response.messages)
+                        {
+                            var temp="<div class='container darker'><b>"+response.messages[key].name+"</b><p>"+response.messages[key].value+"</p><span class='time-left'>"+response.messages[key].date+"</span></div>";
+                            $("#display").append(temp);
+                        }
+                    },
+                    error: function(response){
+                        alert('An error occured')
+                    }
+                });
+            },1000);
+            })
+            </script>
+
+    <body>
+
+    <div id="chat-room">
+    <h1>Chat Room : {{ roomname }}</h1>
+  
+    <div id="display">
+      <!-- Chat messages will go here -->
+    </div>
+  
+    <form id='post-form' >
+        {% csrf_token %}
+        <input type='hidden' name='user' id='user' value={{ user }}>
+        <input type='hidden' name='room' id='room' value={{ room }}>
+      <textarea placeholder="Enter your message" id="message" ></textarea>
+      <button type="submit">Send</button>
+    </form>
+</div>
+
+
+
+<script type='text/javascript'>
+    $(document).on('submit', '#post-form', function(e){
+        e.preventDefault();
+        $.ajax({
+            url: '/send',
+            type: 'POST',
+            data: {
+                message: $('#message').val(),
+                user: $('#user').val(),
+                room: $('#room').val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success: function(data){
+            
+            },
+        });
+        // Clearing the message input field
+        $('#message').val('');
+    });
+    
+
+    
+
+</script>
+</body>
+</html>
+
+
